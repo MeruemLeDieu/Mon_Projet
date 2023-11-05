@@ -1,0 +1,101 @@
+[versions]
+
+android-gradle-plugin = "8.1.1"
+gradleDownloadTask = "4.1.2"
+kotlin = "1.9.10"
+coroutine = "1.7.3"
+dagger-hilt = "2.47"
+dagger-hilt-navigation = "1.1.0-alpha01"
+google-services = "4.4.0"
+crashlytics-plugin = "2.9.9"
+androidx-core = "1.12.0"
+androidx-lifecycle = "2.6.2"
+androidx-splashscreen = "1.0.1"
+androidxTracing = "1.1.0"
+material3 = "1.10.0"
+coil = "2.4.0"
+navigationSafeArgsGradlePlugin = "2.7.5"
+robolectric = "4.9.2"
+room = "2.6.0-rc01"
+firebase-bom = "32.3.1"
+junit = "4.13.2"
+androidx-junit = "1.1.5"
+test-runner = "1.5.2"
+mockk-version="1.13.5"
+google-play-services = "20.7.0"
+recyclerview = "1.3.1"
+constraintlayout = "1.0.1"
+google-ksp = "1.9.10-1.0.13"
+tensorflow-lite = "0.4.0"
+tensorflow-lite-gpu = "2.9.0"
+androidx-camera = "1.3.0"
+
+
+[libraries]
+
+androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationSafeArgsGradlePlugin" }
+gradle-download-task = { module = "de.undercouch:gradle-download-task", version.ref = "gradleDownloadTask" }
+tensorflow-lite = { module = "org.tensorflow:tensorflow-lite-task-vision", version.ref = "tensorflow-lite" }
+tensorflow-lite-gpu-delegate = { module = "org.tensorflow:tensorflow-lite-gpu-delegate-plugin", version.ref = "tensorflow-lite" }
+tensorflow-lite-gpu = { module = "org.tensorflow:tensorflow-lite-gpu", version.ref = "tensorflow-lite-gpu" }
+
+camera = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }
+
+coroutine-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutine" }
+coroutine-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutine" }
+coroutine-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutine"}
+
+core = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
+lifecycle = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "androidx-lifecycle" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
+
+androidx-tracing-ktx = { group = "androidx.tracing", name = "tracing-ktx", version.ref = "androidxTracing" }
+material = { module = "com.google.android.material:material", version.ref = "material3" }
+
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger-hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger-hilt" }
+hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger-hilt" }
+
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics-ktx" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
+firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
+
+google-play-services = {module = "com.google.android.gms:play-services-auth", version.ref = "google-play-services"}
+
+junit = { module = "junit:junit", version.ref = "junit" }
+
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "test-runner" }
+
+mockk = { module = "io.mockk:mockk-android", version.ref = "mockk-version" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+
+
+[bundles]
+coroutine =  ["coroutine-android", "coroutine-play-services"]
+androidx = ["core", "lifecycle", "splashscreen","androidx-tracing-ktx"]
+material = ["material"]
+hilt = ["hilt-android", "hilt-compiler"]
+firebase = ["firebase-analytics", "firebase-crashlytics", "firebase-auth", "firebase-firestore", "firebase-storage", "google-play-services"]
+room = ["room-runtime", "room-ktx"]
+tensorflow = ["tensorflow-lite", "tensorflow-lite-gpu-delegate", "tensorflow-lite-gpu"]
+
+[plugins]
+android-application = { id = 'com.android.application', version.ref = "android-gradle-plugin" }
+android-library = { id = 'com.android.library', version.ref = "android-gradle-plugin" }
+kotlin-android = { id = 'org.jetbrains.kotlin.android', version.ref = "kotlin" }
+kotlin-kapt = { id = 'org.jetbrains.kotlin.kapt', version.ref = "kotlin" }
+google-ksp = { id = 'com.google.devtools.ksp', version.ref = "google-ksp" }
+dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger-hilt" }
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+crashlytics = { id ="com.google.firebase.crashlytics", version.ref = "crashlytics-plugin" }
+download = { id = "de.undercouch.download", version.ref = "gradleDownloadTask" }

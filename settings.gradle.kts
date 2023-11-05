@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
     repositories {
         google()
@@ -10,6 +12,13 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+    }
+}
+
+buildCache {
+    local {
+        directory = File(rootDir, "build/mon_projet-build-cache")
+        removeUnusedEntriesAfterDays = 7
     }
 }
 
