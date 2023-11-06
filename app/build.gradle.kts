@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.crashlytics)
+    id("androidx.navigation.safeargs")
     id ("jacoco")
 }
 android {
@@ -118,6 +119,6 @@ dependencies {
     implementation(libs.bundles.tensorflow)
 
     //camera
-    implementation(libs.camera)
+    implementation(libs.bundles.camera)
 
 }

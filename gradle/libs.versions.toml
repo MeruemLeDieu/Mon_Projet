@@ -29,9 +29,11 @@ google-ksp = "1.9.10-1.0.13"
 tensorflow-lite = "0.4.0"
 tensorflow-lite-gpu = "2.9.0"
 androidx-camera = "1.3.0"
+androidx-navigation = "2.7.5"
 
 
 [libraries]
+navigation = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "androidx-navigation" }
 
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationSafeArgsGradlePlugin" }
 gradle-download-task = { module = "de.undercouch:gradle-download-task", version.ref = "gradleDownloadTask" }
@@ -39,7 +41,10 @@ tensorflow-lite = { module = "org.tensorflow:tensorflow-lite-task-vision", versi
 tensorflow-lite-gpu-delegate = { module = "org.tensorflow:tensorflow-lite-gpu-delegate-plugin", version.ref = "tensorflow-lite" }
 tensorflow-lite-gpu = { module = "org.tensorflow:tensorflow-lite-gpu", version.ref = "tensorflow-lite-gpu" }
 
-camera = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }
+camera2 = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }
+camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "androidx-camera" }
+camera-view = { module = "androidx.camera:camera-view", version.ref = "androidx-camera" }
+camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "androidx-camera" }
 
 coroutine-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutine" }
 coroutine-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutine" }
@@ -82,13 +87,13 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 
 [bundles]
 coroutine =  ["coroutine-android", "coroutine-play-services"]
-androidx = ["core", "lifecycle", "splashscreen","androidx-tracing-ktx"]
+androidx = ["core", "lifecycle", "splashscreen","androidx-tracing-ktx", "androidx-recyclerview", "navigation"]
 material = ["material"]
 hilt = ["hilt-android", "hilt-compiler"]
 firebase = ["firebase-analytics", "firebase-crashlytics", "firebase-auth", "firebase-firestore", "firebase-storage", "google-play-services"]
 room = ["room-runtime", "room-ktx"]
 tensorflow = ["tensorflow-lite", "tensorflow-lite-gpu-delegate", "tensorflow-lite-gpu"]
-
+camera = ["camera2", "camera-lifecycle", "camera-view", "camera-extensions"]
 [plugins]
 android-application = { id = 'com.android.application', version.ref = "android-gradle-plugin" }
 android-library = { id = 'com.android.library', version.ref = "android-gradle-plugin" }
@@ -98,4 +103,4 @@ google-ksp = { id = 'com.google.devtools.ksp', version.ref = "google-ksp" }
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger-hilt" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 crashlytics = { id ="com.google.firebase.crashlytics", version.ref = "crashlytics-plugin" }
-download = { id = "de.undercouch.download", version.ref = "gradleDownloadTask" }
+navigation-safe-args = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigationSafeArgsGradlePlugin" }

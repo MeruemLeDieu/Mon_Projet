@@ -1,4 +1,4 @@
-package fr.william.camera_app
+package fr.william.camera_app.ui
 
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
