@@ -35,26 +35,41 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
-        dataBinding = true
+        compose = true
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 
     packaging {
         resources {
-            excludes += listOf("/META-INF/{AL2.0,LGPL2.1}", "META-INF/versions/9/previous-compilation-data.bin", "META-INF/LICENSE-notice.md", "META-INF/LICENSE.md")
-            merges += "META-INF/gradle/incremental.annotation.processors"
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/gradle/incremental.annotation.processors"
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
         }
     }
 
+
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
+        freeCompilerArgs = freeCompilerArgs + listOf(
+            "-opt-in=" + "kotlinx.coroutines.ExperimentalCoroutinesApi," + "kotlin.contracts.ExperimentalContracts," + "kotlinx.coroutines.FlowPreview," + "androidx.compose.material3.ExperimentalMaterial3Api," + "androidx.compose.animation.ExperimentalAnimationApi," + "androidx.compose.ui.ExperimentalComposeUiApi," + "androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi," + "androidx.compose.foundation.ExperimentalFoundationApi"
+        )
     }
 }
+
+kapt {
+    correctErrorTypes = true
+}
+
 val ASSET_DIR = "$projectDir/src/main/assets"
 val TEST_ASSETS_DIR = "$projectDir/src/androidTest/assets"
 
@@ -80,6 +95,8 @@ dependencies {
     //region Androidx
     implementation (libs.bundles.androidx)
     implementation (libs.bundles.coroutine)
+    implementation(libs.androidx.compose.materialWindow)
+    implementation(libs.google.android.material)
     //endregion
 
     //region Hilt
@@ -90,8 +107,12 @@ dependencies {
     //endregion
 
     //region Compose
-    implementation(libs.bundles.material)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.bundles.compose)
+    debugImplementation(libs.bundles.compose.debug)
+    androidTestImplementation (libs.bundles.compose.test)
     //endregion
+
 
     //region Firebase
     implementation (platform(libs.firebase.bom))
@@ -118,6 +139,6 @@ dependencies {
     implementation(libs.bundles.tensorflow)
 
     //camera
-    implementation(libs.camera)
+    implementation(libs.bundles.camera)
 
 }
