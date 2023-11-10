@@ -1,44 +1,54 @@
 package fr.william.camera_app.ui.camera
 
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import fr.william.camera_app.data.TfImageSegmentationHelper
-import org.tensorflow.lite.support.image.TensorImage
-import org.tensorflow.lite.task.vision.segmenter.ColoredLabel
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import org.tensorflow.lite.task.vision.segmenter.Segmentation
 
 @Composable
 fun CameraScreen(isExpandedScreen: Boolean) {
     val context = LocalContext.current
 
-    var segmentation by remember { mutableStateOf(emptyList<ColorLabel>()) }
-    var masks by remember { mutableStateOf(emptyList<Bitmap>()) }
+    var segmentation by remember { mutableStateOf(emptyList<Segmentation>()) }
+    var coloredLabels by remember { mutableStateOf(emptyList<ColorLabel>()) }
+    var inferenceTime by remember { mutableLongStateOf(0L) }
+    var imageWidth by remember { mutableIntStateOf(500) }
+    var imageHeight by remember { mutableIntStateOf(500) }
+
+    
 
     val imageSegmentationHelper = remember {
         TfImageSegmentationHelper(
@@ -52,17 +62,11 @@ fun CameraScreen(isExpandedScreen: Boolean) {
         ImageSegmenterAnalyzer(
             segmenter = imageSegmentationHelper,
             onResult = { segmentationResult ->
-                val coloredLabels = segmentationResult.results?.get(0)?.coloredLabels ?: emptyList()
-                segmentation = coloredLabels.mapIndexed { index, coloredLabel ->
-                    ColorLabel(
-                        index,
-                        coloredLabel.getlabel(),
-                        coloredLabel.argb
-                    )
-                }
-                segmentationResult.results?.let { results ->
-                    val maskTensor = results[0].masks[0]
-                    masks = createMasks(coloredLabels, maskTensor)
+                MainScope().launch {
+                    segmentation = segmentationResult.results ?: emptyList()
+                    inferenceTime = segmentationResult.inferenceTime
+                    imageWidth = segmentationResult.imageWidth
+                    imageHeight = segmentationResult.imageHeight
                 }
             }
         )
@@ -78,87 +82,62 @@ fun CameraScreen(isExpandedScreen: Boolean) {
         }
     }
     Column(
-
-    ){
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(500.dp)
         ) {
             CameraPreview(controller, Modifier.fillMaxSize())
-            Canvas(
-                modifier = Modifier.fillMaxSize(),
-                onDraw = {
-                    // Set a transparent background color
-                    drawRect(color = Color.Transparent, size = this.size)
-                    masks.forEachIndexed { index, maskBitmap ->
-                        val colorLabel = segmentation.getOrNull(index)
-                        val scaleBitmap = Bitmap.createScaledBitmap(
-                            maskBitmap,
-                            size.width.toInt(),
-                            size.height.toInt(),
-                            false
-                        )
-                        if (colorLabel != null) {
-                            drawImage(
-                                image = scaleBitmap.asImageBitmap(),
-                                topLeft = Offset(0f, 0f),
-                                alpha = 0.5f,
-                                blendMode = BlendMode.Src
-                            )
-                        }
-                        // Recycle the scaled bitmap
-                        scaleBitmap.recycle()
-                    }
-                }
-
-            )
-
-
-
-
+            OverlayView(
+                segmentResult = segmentation,
+                imageHeight = imageHeight,
+                imageWidth = imageWidth,
+            ) { coloredLabelsResult ->
+                coloredLabels = coloredLabelsResult
+            }
         }
+
         LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(segmentation) { colorLabel ->
-                val maskIndex = colorLabel.id
-                Column(
-                    modifier = Modifier.padding(8.dp)
-                ) {
+            items(coloredLabels) { colorLabel ->
+                key(colorLabel.id) { // Use a unique identifier for each item
                     Text(
+                        modifier = Modifier.
+                        background(
+                            color = colorLabel.rgbColor.asComposeColor(),
+                            shape = RoundedCornerShape(8.dp)
+                        ).padding(8.dp),
                         text = colorLabel.label,
                         textAlign = TextAlign.Center,
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        color = Color.White,
                     )
                 }
             }
         }
-    }
 
+        Text(
+            text = "Inference time: $inferenceTime ms",
+            modifier = Modifier.padding(16.dp),
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
 }
 
-fun createMasks(coloredLabels: List<ColoredLabel>, maskTensor: TensorImage): List<Bitmap> {
-    val bitmaps = mutableListOf<Bitmap>()
-    coloredLabels.forEach { coloredLabel ->
-        val maskArray = maskTensor.buffer.array()
-        val pixels = IntArray(maskArray.size)
-
-        for (i in maskArray.indices) {
-            val colorLabel = coloredLabels[maskArray[i].toInt()].color
-            pixels[i] = colorLabel.toArgb()
-        }
-
-        // Log pixel values
-        Log.d("MaskCreation", "Pixels: ${pixels.joinToString(", ")}")
-
-        val bitmap = Bitmap.createBitmap(
-            pixels,
-            maskTensor.width,
-            maskTensor.height,
-            Bitmap.Config.ARGB_8888
-        )
-        bitmaps.add(bitmap)
-    }
-    return bitmaps
+fun Int.asComposeColor(): Color {
+    return Color(
+        red = android.graphics.Color.red(this) / 255f,
+        green = android.graphics.Color.green(this) / 255f,
+        blue = android.graphics.Color.blue(this) / 255f,
+        alpha = android.graphics.Color.alpha(this) / 255f
+    )
 }

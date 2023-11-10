@@ -1,8 +1,16 @@
 package fr.william.camera_app.ui.camera
 
 import android.graphics.Bitmap
+import android.graphics.Color.argb
+import android.graphics.Color.blue
+import android.graphics.Color.green
+import android.graphics.Color.red
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -10,16 +18,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
-
-
-interface OverlayViewListener {
-    fun onLabels(colorLabels: List<ColorLabel>)
-}
+import kotlin.math.max
 
 data class ColorLabel(
     val id: Int,
@@ -27,26 +33,21 @@ data class ColorLabel(
     val rgbColor: Int,
     var isExist: Boolean = false
 ) {
-
     fun getColor(): Int {
-        // Use completely transparent for the background color.
-        return rgbColor and 0x00FFFFFF
+        return if (id == 0) android.graphics.Color.TRANSPARENT else argb(128, red(rgbColor), green(rgbColor), blue(rgbColor))
     }
 }
+
 @Composable
 fun OverlayView(
-    listener: (List<ColorLabel>) -> Unit
+    segmentResult: List<Segmentation>?,
+    imageHeight: Int,
+    imageWidth: Int,
+    callback: (List<ColorLabel>) -> Unit,
 ) {
     var scaleBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
-    val context = LocalContext.current
-
-    LaunchedEffect(context) {
-        // Simulate setting results
-        val imageWidth = 800 // Replace with your actual image width
-        val imageHeight = 600 // Replace with your actual image height
-        val segmentResult: List<Segmentation>? = null // Replace with your data
-
+    LaunchedEffect(segmentResult) {
         if (!segmentResult.isNullOrEmpty()) {
             val colorLabels = segmentResult[0].coloredLabels.mapIndexed { index, coloredLabel ->
                 ColorLabel(
@@ -61,40 +62,38 @@ fun OverlayView(
             val pixels = IntArray(maskArray.size)
 
             for (i in maskArray.indices) {
-                val colorLabel = colorLabels[maskArray[i].toInt()].apply {
-                    isExist = true
-                }
-                val color = colorLabel.getColor()
-                pixels[i] = color
+                colorLabels.getOrNull(maskArray[i].toInt())?.isExist = true
+                pixels[i] = colorLabels.getOrNull(maskArray[i].toInt())?.getColor() ?: 0
             }
 
-            val image = Bitmap.createBitmap(
+            scaleBitmap = Bitmap.createBitmap(
                 pixels,
                 maskTensor.width,
                 maskTensor.height,
                 Bitmap.Config.ARGB_8888
             )
 
-            val scaleFactor = maxOf(
-                context.resources.displayMetrics.widthPixels.toFloat() / imageWidth,
-                context.resources.displayMetrics.heightPixels.toFloat() / imageHeight
-            )
-            val scaleWidth = (imageWidth * scaleFactor).toInt()
-            val scaleHeight = (imageHeight * scaleFactor).toInt()
-
-            scaleBitmap = Bitmap.createScaledBitmap(image, scaleWidth, scaleHeight, false)
-            listener(colorLabels.filter { it.isExist })
+            callback(colorLabels.filter { it.isExist })
         }
     }
 
     Canvas(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) {
         scaleBitmap?.let { imageBitmap ->
-            scale(imageBitmap.width.toFloat() / size.width, imageBitmap.height.toFloat() / size.height) {
-                drawImage(imageBitmap.asImageBitmap())
-            }
+            val scaleFactor = max(size.width * 1f / imageWidth, size.height * 1f / imageHeight)
+            val scaleWidth = (imageWidth * scaleFactor).toInt()
+            val scaleHeight = (imageHeight * scaleFactor).toInt()
+
+            scaleBitmap = Bitmap.createScaledBitmap(imageBitmap, scaleWidth, scaleHeight, false)
+
+            drawImage(
+                image = scaleBitmap!!.asImageBitmap(),
+                topLeft = Offset(0f, 0f),
+                alpha = 0.5f,
+                blendMode = BlendMode.SrcOver
+            )
         }
     }
-
 }
