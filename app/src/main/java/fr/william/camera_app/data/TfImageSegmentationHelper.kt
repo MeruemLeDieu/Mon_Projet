@@ -3,10 +3,11 @@ package fr.william.camera_app.data
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
-import fr.william.camera_app.domain.ImageSegmenterHelper
+import fr.william.camera_app.domain.ImageHelper
 import org.tensorflow.lite.gpu.CompatibilityList
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
+import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.Rot90Op
 import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.vision.segmenter.ImageSegmenter
@@ -14,29 +15,17 @@ import org.tensorflow.lite.task.vision.segmenter.OutputType
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
 
 data class SegmentationResult(
-    val results: List<Segmentation>?,
+    val results: MutableList<Segmentation>?,
     val inferenceTime: Long,
     val imageHeight: Int,
     val imageWidth: Int
 )
 
-/**
- * _CallApp_
- *
- * fr.william.camera_app.data.ImageSegmentationHelper
- *
- * ### Information
- * - __Author__ Deuspheara
- *
- * ### Description
- *
- *
- */
 class TfImageSegmentationHelper(
     var numThreads: Int = 2,
     var currentDelegate: Int = 0,
     val context: Context,
-) : ImageSegmenterHelper {
+) : ImageHelper {
 
     private var imageSegmenter: ImageSegmenter? = null
 
@@ -67,6 +56,7 @@ class TfImageSegmentationHelper(
         //            lite_support#imageprocessor_architecture
         val imageProcessor =
             ImageProcessor.Builder()
+                .add(ResizeOp(500, 500, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
                 .add(Rot90Op(-imageRotation / 90))
                 .build()
 
@@ -121,7 +111,7 @@ class TfImageSegmentationHelper(
                     optionsBuilder.build()
                 )
         } catch (e: IllegalStateException) {
-
+            e.printStackTrace()
         }
     }
 

@@ -16,18 +16,33 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    background = Color.White
+private val LightColors = lightColorScheme(
+    outline = Grey900,
+    outlineVariant = Grey500,
+    primary = Purple500,
+    onPrimary = White,
+    secondary = White,
+    onSecondary = Black,
+    background = White,
+    onBackground = Green900,
+    surfaceVariant = Grey200,
+    onSurfaceVariant = Grey500,
+    error = Red500,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-    background = Color.Black
+
+private val DarkColors = darkColorScheme(
+    outline = Grey400,
+    outlineVariant = Grey700,
+    primary = Purple400,
+    onPrimary = White,
+    secondary = Black,
+    onSecondary = White,
+    background = Grey900,
+    onBackground = White,
+    surfaceVariant = Grey700,
+    onSurfaceVariant = Grey400,
+    error = Red500,
 )
 
 @Composable
@@ -43,8 +58,8 @@ fun CameraAppTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> DarkColors
+        else -> LightColors
     }
     val view = LocalView.current
     if (!view.isInEditMode) {

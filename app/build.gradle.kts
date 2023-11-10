@@ -73,21 +73,46 @@ kapt {
 val ASSET_DIR = "$projectDir/src/main/assets"
 val TEST_ASSETS_DIR = "$projectDir/src/androidTest/assets"
 
+tasks.register<Download>("downloadModelFile") {
+    src("https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/android/lite-model_ssd_mobilenet_v1_1_metadata_2.tflite")
+    dest("$ASSET_DIR/mobilenetv1.tflite")
+    overwrite(false)
+}
+
+tasks.register<Download>("downloadModelFile0") {
+    src("https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/android/lite-model_efficientdet_lite0_detection_metadata_1.tflite")
+    dest("$ASSET_DIR/efficientdet-lite0.tflite")
+    overwrite(false)
+}
+
+tasks.register<Download>("downloadModelFile1") {
+    src("https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/android/lite-model_efficientdet_lite1_detection_metadata_1.tflite")
+    dest("$ASSET_DIR/efficientdet-lite1.tflite")
+    overwrite(false)
+}
+
+tasks.register<Download>("downloadModelFile2") {
+    src("https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/android/lite-model_efficientdet_lite2_detection_metadata_1.tflite")
+    dest("$ASSET_DIR/efficientdet-lite2.tflite")
+    overwrite(false)
+}
+
 tasks.register<Download>("downloadTestFile") {
     src("https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/image_segmentation/android/lite-model_deeplabv3_1_metadata_2.tflite")
     dest("$TEST_ASSETS_DIR/deeplabv3.tflite")
     overwrite(false)
 }
 
-tasks.register<Download>("downloadModelFile") {
-    src("https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/image_segmentation/android/lite-model_deeplabv3_1_metadata_2.tflite")
-    dest("$ASSET_DIR/deeplabv3.tflite")
-    overwrite(false)
+tasks.named("preBuild") {
+    dependsOn(
+        tasks.getByName("downloadModelFile"),
+        tasks.getByName("downloadModelFile0"),
+        tasks.getByName("downloadModelFile1"),
+        tasks.getByName("downloadModelFile2"),
+        tasks.getByName("downloadTestFile")
+    )
 }
 
-tasks.named("preBuild") {
-    dependsOn(tasks.getByName("downloadModelFile"), tasks.getByName("downloadTestFile"))
-}
 
 
 dependencies {

@@ -50,7 +50,7 @@ coroutine-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-p
 coroutine-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutine"}
 
 core = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
-lifecycle = { module = "androidx.lifecycle:lifecycle-runtime", version.ref = "androidx-lifecycle" }
+lifecycle = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 
@@ -70,6 +70,7 @@ compose-constraintlayout = { module = "androidx.constraintlayout:constraintlayou
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger-hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger-hilt" }
+hilt-navigation = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "dagger-hilt-navigation" }
 hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger-hilt" }
 
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
@@ -102,7 +103,7 @@ androidx = ["core", "lifecycle", "splashscreen","androidx-tracing-ktx"]
 compose = ["compose-material", "compose-ui-tooling-preview", "compose-activity", "compose-navigation", "compose-animation-graphics", "compose-coil", "compose-constraintlayout"]
 compose-debug = ["compose-ui-tooling", "compose-ui-test-manifest"]
 compose-test = ["compose-ui-test"]
-hilt = ["hilt-android", "hilt-compiler"]
+hilt = ["hilt-android", "hilt-compiler", "hilt-navigation"]
 firebase = ["firebase-analytics", "firebase-crashlytics", "firebase-auth", "firebase-firestore", "firebase-storage", "google-play-services"]
 room = ["room-runtime", "room-ktx"]
 tensorflow = ["tensorflow-lite", "tensorflow-lite-gpu-delegate", "tensorflow-lite-gpu"]

@@ -7,18 +7,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 
-/**
- * _CallApp_
- *
- * fr.william.camera_app.ui.camera.CameraPreview
- *
- * ### Information
- * - __Author__ Deuspheara
- *
- * ### Description
- *
- *
- */
 @Composable
 fun CameraPreview(
     controller: LifecycleCameraController,
