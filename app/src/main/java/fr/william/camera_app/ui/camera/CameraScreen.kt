@@ -112,28 +112,29 @@ fun CameraScreen(
         ImageAnalyzer(
             segmenter = imageSegmentationHelper,
             objectDetectionHelper = imageObjectDetectionHelper,
-            onResult = { segmentationResult, objectDetectionResult ->
-                MainScope().launch {
-                    segmentationResult.apply {
-                        viewModel.updateSegmentationResult(
-                            results ?: emptyList(),
-                            inferenceTime,
-                            imageWidth,
-                            imageHeight,
-                        )
-                        Log.d("segmentationResult", "imageWidth: $imageWidth, imageHeight: $imageHeight")
-                    }
-                    objectDetectionResult.apply {
-                        viewModel.updateObjectDetectionResult(
-                            results,
-                            inferenceTime,
-                            imageWidth,
-                            imageHeight,
-                        )
-                    }
+            isSegmenterEnabled = segmentationEnabled,
+            isObjectDetectionEnabled = objectDetectionEnabled,
+        ) { segmentationResult, objectDetectionResult ->
+            MainScope().launch {
+                segmentationResult.apply {
+                    viewModel.updateSegmentationResult(
+                        results ?: emptyList(),
+                        inferenceTime,
+                        imageWidth,
+                        imageHeight,
+                    )
+                    Log.d("segmentationResult", "imageWidth: $imageWidth, imageHeight: $imageHeight")
+                }
+                objectDetectionResult.apply {
+                    viewModel.updateObjectDetectionResult(
+                        results,
+                        inferenceTime,
+                        imageWidth,
+                        imageHeight,
+                    )
                 }
             }
-        )
+        }
     }
 
     val controller = remember {
