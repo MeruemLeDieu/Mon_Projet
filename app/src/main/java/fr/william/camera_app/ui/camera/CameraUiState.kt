@@ -4,6 +4,7 @@ import fr.william.camera_app.data.TfImageSegmentationHelper
 import fr.william.camera_app.data.TfObjectDetectionHelper
 import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
+import java.time.Instant
 
 sealed interface CameraUiState {
     data class SegmentationResult(
@@ -29,4 +30,9 @@ sealed interface CameraUiState {
     )
     @JvmInline
     value class Loading(val isLoading: Boolean = false) : CameraUiState
+
+    @JvmInline
+    value class Error(val message: String) : CameraUiState
+
+    class LabelAdded(val timestamp: Instant) : CameraUiState
 }

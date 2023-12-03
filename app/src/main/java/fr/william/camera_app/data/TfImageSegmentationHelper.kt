@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.os.SystemClock
 import fr.william.camera_app.domain.ImageHelper
+import fr.william.camera_app.domain.SegmentationResult
 import org.tensorflow.lite.gpu.CompatibilityList
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
@@ -13,13 +14,6 @@ import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.vision.segmenter.ImageSegmenter
 import org.tensorflow.lite.task.vision.segmenter.OutputType
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
-
-data class SegmentationResult(
-    val results: MutableList<Segmentation>?,
-    val inferenceTime: Long,
-    val imageHeight: Int,
-    val imageWidth: Int
-)
 
 class TfImageSegmentationHelper(
     var numThreads: Int = 2,

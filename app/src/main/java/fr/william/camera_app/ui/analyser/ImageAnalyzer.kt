@@ -1,11 +1,12 @@
 package fr.william.camera_app.ui.analyser
 
+import android.util.Size
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import fr.william.camera_app.data.SegmentationResult
 import fr.william.camera_app.data.TfImageSegmentationHelper
 import fr.william.camera_app.data.TfObjectDetectionHelper
 import fr.william.camera_app.domain.ObjectDetectionResult
+import fr.william.camera_app.domain.SegmentationResult
 
 class ImageAnalyzer(
     private val segmenter: TfImageSegmentationHelper,
@@ -15,7 +16,6 @@ class ImageAnalyzer(
     private val onResult: (SegmentationResult, ObjectDetectionResult) -> Unit
 ) : ImageAnalysis.Analyzer {
     override fun analyze(image: ImageProxy) {
-
         val rotationDegrees = image.imageInfo.rotationDegrees
         val bitmap = image.toBitmap()
 

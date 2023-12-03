@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -51,8 +51,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.firebase.Timestamp
 import fr.william.camera_app.data.TfImageSegmentationHelper
 import fr.william.camera_app.data.TfObjectDetectionHelper
+import fr.william.camera_app.data.datasource.labels.Position
 import fr.william.camera_app.ui.analyser.ImageAnalyzer
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -66,15 +68,18 @@ fun CameraScreen(
 
     //segmentation
     val segmentationResult by viewModel.segmentation.collectAsStateWithLifecycle()
+    val objectDetectionResult by viewModel.objectDetection.collectAsStateWithLifecycle()
 
     val segmentation by remember { derivedStateOf { segmentationResult.segmentation } }
-    val inferenceTime by remember { derivedStateOf { segmentationResult.inferenceTime } }
-    val imageWidth by remember { derivedStateOf { segmentationResult.imageWidth } }
-    val imageHeight by remember { derivedStateOf { segmentationResult.imageHeight } }
+    val segmentationResultInferenceTime by remember { derivedStateOf { segmentationResult.inferenceTime } }
+    val objectResultInferenceTime by remember { derivedStateOf { objectDetectionResult.inferenceTime } }
+
+    val imageWidth by remember { derivedStateOf { objectDetectionResult.imageWidth } }
+    val imageHeight by remember { derivedStateOf { objectDetectionResult.imageHeight } }
+
     var coloredLabels by remember { mutableStateOf<List<ColorLabel>>(emptyList()) }
 
     //object detection
-    val objectDetectionResult by viewModel.objectDetection.collectAsStateWithLifecycle()
 
     val objectDetection by remember { derivedStateOf { objectDetectionResult.results } }
 
@@ -123,7 +128,10 @@ fun CameraScreen(
                         imageWidth,
                         imageHeight,
                     )
-                    Log.d("segmentationResult", "imageWidth: $imageWidth, imageHeight: $imageHeight")
+                    Log.d(
+                        "segmentationResult",
+                        "imageWidth: $imageWidth, imageHeight: $imageHeight"
+                    )
                 }
                 objectDetectionResult.apply {
                     viewModel.updateObjectDetectionResult(
@@ -131,6 +139,10 @@ fun CameraScreen(
                         inferenceTime,
                         imageWidth,
                         imageHeight,
+                    )
+                    Log.d(
+                        "objectDetectionResult",
+                        "imageWidth: $imageWidth, imageHeight: $imageHeight"
                     )
                 }
             }
@@ -151,6 +163,7 @@ fun CameraScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
         Box(
             modifier = Modifier
@@ -174,7 +187,7 @@ fun CameraScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(16.dp),
+                .padding(top = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(coloredLabels) { colorLabel ->
@@ -196,23 +209,27 @@ fun CameraScreen(
         }
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .wrapContentHeight()
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = "Inference time: $inferenceTime ms",
-                modifier = Modifier
-                    .padding(16.dp),
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            Column {
+                Text(
+                    text = "Segmentation Inference time: $segmentationResultInferenceTime ms",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = "Object Detection Inference time: $objectResultInferenceTime ms",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
             Spacer(Modifier.weight(1f))
             IconButton(
                 onClick = { isSettingsExpanded = !isSettingsExpanded },
-                modifier = Modifier
-                    .padding(16.dp),
             ) {
                 Icon(
                     imageVector = Icons.Default.Settings,
@@ -237,7 +254,7 @@ fun CameraScreen(
                 .fillMaxWidth(),
             scrimColor = Color.Black.copy(alpha = 0.4f),
             sheetState = rememberModalBottomSheetState(
-               skipPartiallyExpanded = true
+                skipPartiallyExpanded = true
             ),
             onDismissRequest = { isSettingsExpanded = false },
         ) {

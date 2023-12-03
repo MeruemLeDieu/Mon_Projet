@@ -1,6 +1,8 @@
 package fr.william.camera_app.ui.camera
 
 import android.content.Context
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.Fill
 import android.graphics.Bitmap
 import android.graphics.Color.argb
 import android.graphics.Color.blue
@@ -9,6 +11,7 @@ import android.graphics.Color.red
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +41,7 @@ import fr.william.camera_app.R
 import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
 import kotlin.math.max
+import kotlin.math.min
 
 data class ColorLabel(
     val id: Int,
@@ -67,22 +71,22 @@ fun OverlayView(
     val bounds = remember { Rect() }
     val textMeasure = rememberTextMeasurer()
 
-    LaunchedEffect(segmentResult) {
+    LaunchedEffect(objectDetection) {
         textBackgroundPaint.apply {
             color = android.graphics.Color.BLACK
             style = Paint.Style.FILL
-            textSize = 25f
+            textSize = 50f
         }
 
         textPaint.apply {
             color = android.graphics.Color.WHITE
             style = Paint.Style.FILL
-            textSize = 25f
+            textSize = 50f
         }
 
         boxPaint.apply {
             color = android.graphics.Color.RED
-            strokeWidth = 4F
+            strokeWidth = 8F
             style = Paint.Style.STROKE
         }
 
@@ -116,11 +120,12 @@ fun OverlayView(
     }
 
     Canvas(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize() //.height(500.dp)
     ) {
         try {
+
             scaleBitmap?.let { imageBitmap ->
-                val scaleFactor = max(size.width * 1f / imageWidth, size.height * 1f / imageHeight)
+                val scaleFactor = min(size.width * 1f / imageWidth, size.height * 1f / imageHeight)
                 val scaleWidth = (imageWidth * scaleFactor).toInt()
                 val scaleHeight = (imageHeight * scaleFactor).toInt()
 
@@ -134,52 +139,71 @@ fun OverlayView(
                         blendMode = BlendMode.SrcOver
                     )
                 }
-               if (objectDetectionEnabled){
-                   objectDetection?.forEach { result ->
-                       val boundingBox = result.boundingBox
+                if (objectDetectionEnabled){
+                    objectDetection?.forEach { result ->
+                        val boundingBox = result.boundingBox
 
-                       val top = boundingBox.top * scaleFactor
-                       val bottom = boundingBox.bottom * scaleFactor
-                       val left = boundingBox.left * scaleFactor
-                       val right = boundingBox.right * scaleFactor
 
-                       // Draw bounding box around detected objects
-                       val drawableRect = RectF(left, top, right, bottom)
-                       drawRect(
-                           color = boxPaint.color.asComposeColor(),
-                           topLeft = Offset(left, top),
-                           size = Size(drawableRect.width(), drawableRect.height()),
-                           alpha = 0.5f
-                       )
+                        val top = boundingBox.top * scaleFactor
+                        val bottom = min(boundingBox.bottom * scaleFactor, size.height.toFloat())  // Ensure bottom doesn't exceed the available height
+                        val left = boundingBox.left * scaleFactor
+                        val right = min(boundingBox.right * scaleFactor, size.width)  // Ensure right doesn't exceed the available width
 
-                       val drawableText =
-                           "${result.categories[0].label} ${String.format("%.2f", result.categories[0].score)}"
+                        // Draw bounding box around detected objects
+                        val drawableRect = RectF(left, top, right, bottom)
+                        drawRect(
+                            color = boxPaint.color.asComposeColor(),
+                            topLeft = Offset(left, top),
+                            size = Size(drawableRect.width(), drawableRect.height()),
+                            alpha = 0.5f,
+                            style = Stroke(width = boxPaint.strokeWidth)
+                        )
 
-                       // Draw rect behind display text
-                       textBackgroundPaint.getTextBounds(drawableText, 0, drawableText.length, bounds)
-                       val textWidth = bounds.width()
-                       val textHeight = bounds.height()
+                        val drawableText = "${result.categories[0].label} ${String.format("%.2f", result.categories[0].score)}"
 
-                       // Adjust the position of the rect and text
-                       val rectAndTextTop = top - textHeight - 8
-                       drawRect(
-                           color = textBackgroundPaint.color.asComposeColor(),
-                           topLeft = Offset(left, rectAndTextTop),
-                           size = Size(left + textWidth + 8, rectAndTextTop + textHeight + 8),
-                           alpha = 0.5f
-                       )
+                        // Draw rect behind display text
+                        textBackgroundPaint.getTextBounds(drawableText, 0, drawableText.length, bounds)
+                        val textWidth = bounds.width()
+                        val textHeight = bounds.height()
 
-                       // Draw text for detected object
-                       drawText(
-                           textMeasurer = textMeasure,
-                           text = drawableText,
-                           style = TextStyle(color = textPaint.color.asComposeColor()),
-                           topLeft = Offset(left, rectAndTextTop + bounds.height())
-                       )
-                   }
-               }
+                        // Adjust the position of the rect and text
+                        //val rectAndTextTop = top - textHeight - 8
+                        drawRect(
+                            color = textBackgroundPaint.color.asComposeColor(),
+                            topLeft = Offset(left, top),//rectAndTextTop),
+                            size = Size(textWidth + 24f,  textHeight + 8f), //size = Size(left + textWidth + 8, (textHeight + 8).toFloat()), //rectAndTextTop + textHeight + 8),
+                            alpha = 0.5f,
+                            style = if (textBackgroundPaint.style == Paint.Style.FILL_AND_STROKE) Stroke(width = textBackgroundPaint.strokeWidth) else
+                                Fill
+                        )
 
-                // Combine object detection bounding boxes with segmentation masks
+                        // Draw text for detected object
+                        drawText(
+                            textMeasurer = textMeasure,
+                            text = drawableText,
+                            style = TextStyle(
+                                color = textPaint.color.asComposeColor()
+                            ),
+                            topLeft = Offset(left, top - textHeight - 8 + bounds.height())//rectAndTextTop + bounds.height())
+                        )
+                    }
+                }
+
+Log.d("OverlayView", """
+    |Image Scaling and Analysis:
+    |  Scale Factor: $scaleFactor
+    |  Scaled Dimensions: ($scaleWidth x $scaleHeight)
+    |  View Size: (${size.width} x ${size.height})
+    |  Original Image Dimensions: $imageWidth x $imageHeight
+    |Object Detection:
+    |  Detection Results: $objectDetection
+    |  Segmentation Result: $segmentResult
+    |  Segmentation Enabled: $segmentationEnabled
+    |  Object Detection Enabled: $objectDetectionEnabled
+    |  Callback: $callback
+""".trimMargin())
+
+
 
             }
         } catch (e: Exception) {
