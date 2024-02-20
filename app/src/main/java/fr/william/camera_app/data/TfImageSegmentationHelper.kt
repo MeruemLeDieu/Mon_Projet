@@ -13,10 +13,19 @@ import org.tensorflow.lite.support.image.ops.Rot90Op
 import org.tensorflow.lite.task.core.BaseOptions
 import org.tensorflow.lite.task.vision.segmenter.ImageSegmenter
 import org.tensorflow.lite.task.vision.segmenter.OutputType
-import org.tensorflow.lite.task.vision.segmenter.Segmentation
 
+/**
+ * Class responsible to run the Image Segmentation model. more information about the DeepLab model
+ * being used can be found here:
+ * https://ai.googleblog.com/2018/03/semantic-image-segmentation-with.html
+ * https://github.com/tensorflow/models/tree/master/research/deeplab
+ *
+ * Label names: 'background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat',
+ * 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep',
+ * 'sofa', 'train', 'tv'
+ */
 class TfImageSegmentationHelper(
-    var numThreads: Int = 2,
+    var numThreads: Int = 1,
     var currentDelegate: Int = 0,
     val context: Context,
 ) : ImageHelper {

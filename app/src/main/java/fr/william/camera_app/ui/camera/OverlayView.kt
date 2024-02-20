@@ -1,8 +1,5 @@
 package fr.william.camera_app.ui.camera
 
-import android.content.Context
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.Fill
 import android.graphics.Bitmap
 import android.graphics.Color.argb
 import android.graphics.Color.blue
@@ -14,10 +11,6 @@ import android.graphics.RectF
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,19 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import fr.william.camera_app.R
+import org.tensorflow.lite.task.vision.classifier.ImageClassifier
 import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
-import kotlin.math.max
 import kotlin.math.min
 
 data class ColorLabel(
@@ -58,10 +47,12 @@ data class ColorLabel(
 fun OverlayView(
     segmentResult: List<Segmentation>?,
     objectDetection: List<Detection>?,
+    videoResult: List<ImageClassifier>?,
     imageHeight: Int,
     imageWidth: Int,
     segmentationEnabled: Boolean,
     objectDetectionEnabled: Boolean,
+    videoEnabled: Boolean,
     callback: (List<ColorLabel>) -> Unit,
 ) {
     var scaleBitmap by remember { mutableStateOf<Bitmap?>(null) }

@@ -36,6 +36,8 @@ android {
 
     buildFeatures {
         compose = true
+        dataBinding = true
+        viewBinding = true
     }
 
     compileOptions {
@@ -64,10 +66,12 @@ android {
             "-opt-in=" + "kotlinx.coroutines.ExperimentalCoroutinesApi," + "kotlin.contracts.ExperimentalContracts," + "kotlinx.coroutines.FlowPreview," + "androidx.compose.material3.ExperimentalMaterial3Api," + "androidx.compose.animation.ExperimentalAnimationApi," + "androidx.compose.ui.ExperimentalComposeUiApi," + "androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi," + "androidx.compose.foundation.ExperimentalFoundationApi"
         )
     }
+    buildToolsVersion = "34.0.0"
 }
 
 kapt {
     correctErrorTypes = true
+    generateStubs = true
 }
 
 val ASSET_DIR = "$projectDir/src/main/assets"
@@ -97,6 +101,24 @@ tasks.register<Download>("downloadModelFile2") {
     overwrite(false)
 }
 
+tasks.register<Download>("downloadModelFile00") {
+    src("https://tfhub.dev/tensorflow/lite-model/movinet/a0/stream/kinetics-600/classification/tflite/int8/1?lite-format=tflite")
+    dest("$ASSET_DIR/movinet_a0_stream_int8.tflite")
+    overwrite(false)
+}
+
+tasks.register<Download>("downloadModelFile11") {
+    src("https://tfhub.dev/tensorflow/lite-model/movinet/a1/stream/kinetics-600/classification/tflite/int8/1?lite-format=tflite")
+    dest("$ASSET_DIR/movinet_a1_stream_int8.tflite")
+    overwrite(false)
+}
+
+tasks.register<Download>("downloadModelFile22") {
+    src("https://tfhub.dev/tensorflow/lite-model/movinet/a2/stream/kinetics-600/classification/tflite/int8/1?lite-format=tflite")
+    dest("$ASSET_DIR/movinet_a2_stream_int8.tflite")
+    overwrite(false)
+}
+
 tasks.register<Download>("downloadTestFile") {
     src("https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/image_segmentation/android/lite-model_deeplabv3_1_metadata_2.tflite")
     dest("$TEST_ASSETS_DIR/deeplabv3.tflite")
@@ -109,6 +131,9 @@ tasks.named("preBuild") {
         tasks.getByName("downloadModelFile0"),
         tasks.getByName("downloadModelFile1"),
         tasks.getByName("downloadModelFile2"),
+        tasks.getByName("downloadModelFile00"),
+        tasks.getByName("downloadModelFile11"),
+        tasks.getByName("downloadModelFile22"),
         tasks.getByName("downloadTestFile")
     )
 }
@@ -126,6 +151,7 @@ dependencies {
 
     //region Hilt
     implementation (libs.bundles.hilt)
+    implementation(libs.androidx.monitor)
     kapt(libs.hilt.compiler)
     implementation (libs.androidx.recyclerview)
     androidTestImplementation (libs.hilt.testing)
@@ -165,5 +191,13 @@ dependencies {
 
     //camera
     implementation(libs.bundles.camera)
+
+    //modif maison pour videoclassifier
+    implementation(libs.bundles.asmAnalysis)
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
+    implementation(libs.dagger.android)
+    implementation(libs.dagger.android.support)
+    kapt(libs.dagger.android.processor)
 
 }

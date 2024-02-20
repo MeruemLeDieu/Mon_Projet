@@ -1,5 +1,7 @@
 package fr.william.camera_app.ui.camera
 
+//import com.google.firebase.Timestamp
+//import fr.william.camera_app.data.datasource.labels.Position
 import android.util.Log
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
@@ -50,38 +52,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.Timestamp
 import fr.william.camera_app.data.TfImageSegmentationHelper
 import fr.william.camera_app.data.TfObjectDetectionHelper
-import fr.william.camera_app.data.datasource.labels.Position
+import fr.william.camera_app.data.VideoClassifier
 import fr.william.camera_app.ui.analyser.ImageAnalyzer
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
+
+
 @Composable
 fun CameraScreen(
     isExpandedScreen: Boolean,
-    viewModel: CameraViewModel = hiltViewModel(),
+    //viewModel: CameraViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner),
 ) {
     val context = LocalContext.current
+    val viewModel: CameraViewModel = hiltViewModel(LocalContext.current as ViewModelStoreOwner)
 
-    //segmentation
     val segmentationResult by viewModel.segmentation.collectAsStateWithLifecycle()
     val objectDetectionResult by viewModel.objectDetection.collectAsStateWithLifecycle()
+    val videoClassifierResult by viewModel.video.collectAsStateWithLifecycle()
 
     val segmentation by remember { derivedStateOf { segmentationResult.segmentation } }
+    val objectDetection by remember { derivedStateOf { objectDetectionResult.results } }
+    val classification by remember { derivedStateOf { videoClassifierResult.classification } }
+
     val segmentationResultInferenceTime by remember { derivedStateOf { segmentationResult.inferenceTime } }
     val objectResultInferenceTime by remember { derivedStateOf { objectDetectionResult.inferenceTime } }
+    val videoInferenceTime by remember { derivedStateOf { videoClassifierResult.inferenceTime } }
 
     val imageWidth by remember { derivedStateOf { objectDetectionResult.imageWidth } }
     val imageHeight by remember { derivedStateOf { objectDetectionResult.imageHeight } }
 
     var coloredLabels by remember { mutableStateOf<List<ColorLabel>>(emptyList()) }
-
-    //object detection
-
-    val objectDetection by remember { derivedStateOf { objectDetectionResult.results } }
 
     var isSettingsExpanded by remember { mutableStateOf(false) }
 
@@ -89,10 +94,16 @@ fun CameraScreen(
     val formInputState by viewModel.formInputState.collectAsStateWithLifecycle()
 
     val numThreads by remember { derivedStateOf { formInputState.numThreads } }
+    val maxResults by remember { derivedStateOf { formInputState.maxResults } }
+    val interpreter by remember { derivedStateOf { formInputState.interpreter } }
+    val labels by remember { derivedStateOf { formInputState.labels } }
+    val modelFile by remember { derivedStateOf { formInputState.modelFile } }
+    val labelFile by remember { derivedStateOf { formInputState.labelFile } }
     val currentDelegate by remember { derivedStateOf { formInputState.currentDelegate } }
     val currentModel by remember { derivedStateOf { formInputState.currentModel } }
     val segmentationEnabled by remember { derivedStateOf { formInputState.segmentationEnabled } }
     val objectDetectionEnabled by remember { derivedStateOf { formInputState.objectDetectionEnabled } }
+    val videoEnabled by remember { derivedStateOf { formInputState.videoEnabled } }
 
 
     // Use the values from formInputState to initialize the TfImageSegmentationHelper
@@ -113,12 +124,26 @@ fun CameraScreen(
         )
     }
 
+    val videoClassifier = remember {
+        VideoClassifier(
+            numThreads = numThreads,
+            maxResults = maxResults,
+            interpreter = interpreter,
+            labels = labels,
+            context = context,
+            modelFile = modelFile,
+            labelFile = labelFile,
+        )
+    }
+
     val analyzer = remember {
         ImageAnalyzer(
             segmenter = imageSegmentationHelper,
             objectDetectionHelper = imageObjectDetectionHelper,
+            videoClassifier = videoClassifier,
             isSegmenterEnabled = segmentationEnabled,
             isObjectDetectionEnabled = objectDetectionEnabled,
+            isVideoEnabled = videoEnabled,
         ) { segmentationResult, objectDetectionResult ->
             MainScope().launch {
                 segmentationResult.apply {
@@ -142,6 +167,18 @@ fun CameraScreen(
                     )
                     Log.d(
                         "objectDetectionResult",
+                        "imageWidth: $imageWidth, imageHeight: $imageHeight"
+                    )
+                }
+                videoClassifierResult.apply {
+                    viewModel.updateVideoResult(
+                        classification,
+                        inferenceTime,
+                        imageWidth,
+                        imageHeight,
+                    )
+                    Log.d(
+                        "videoClassifierResult",
                         "imageWidth: $imageWidth, imageHeight: $imageHeight"
                     )
                 }
@@ -174,10 +211,12 @@ fun CameraScreen(
             OverlayView(
                 segmentResult = segmentation,
                 objectDetection = objectDetection,
+                videoResult = classification,
                 imageHeight = imageHeight,
                 imageWidth = imageWidth,
                 segmentationEnabled = segmentationEnabled,
                 objectDetectionEnabled = objectDetectionEnabled,
+                videoEnabled = videoEnabled,
             ) { coloredLabelsResult ->
                 coloredLabels = coloredLabelsResult
             }
@@ -225,6 +264,11 @@ fun CameraScreen(
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+                Text(
+                    text = "Video Classification Inference time: $videoInferenceTime ms",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             }
 
             Spacer(Modifier.weight(1f))
@@ -258,6 +302,8 @@ fun CameraScreen(
             ),
             onDismissRequest = { isSettingsExpanded = false },
         ) {
+
+            // NumThreads
             Text(
                 text = "Number of Threads: $numThreads",
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -275,8 +321,12 @@ fun CameraScreen(
                     .padding(16.dp)
             )
 
-
-            // Delegate selection
+            // CurrentDelegate
+            Text(
+                text = "Image Segmentation Model: $currentDelegate",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.titleLarge
+            )
             RadioGroup(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 selectedOption = currentDelegate,
@@ -290,9 +340,9 @@ fun CameraScreen(
                 }
             )
 
-            // Model selection
+            // CurrentModel
             Text(
-                text = "Model: $currentModel",
+                text = "Object Detection Model: $currentModel",
                 modifier = Modifier.padding(horizontal = 16.dp),
                 style = MaterialTheme.typography.titleLarge
             )
@@ -309,6 +359,44 @@ fun CameraScreen(
                 }
             )
 
+            // ModelFile
+            Text(
+                text = "Video Classification Model: $modelFile",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.titleLarge
+            )
+            GroupRadio(
+                modifier = Modifier.padding(16.dp),
+                selectedOption = modelFile,
+                options = listOf(
+                    "movinet_a0_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A0_FILE,
+                    "movinet_a1_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A1_FILE,
+                    "movinet_a2_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A2_FILE,
+                ),
+                onOptionSelected = { model2 ->
+                    viewModel.updateModelFile(model2)
+                }
+            )
+
+            // MaxResults
+            Text(
+                text = "Video Classification MaxResults: $maxResults",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.titleLarge
+            )
+            Slider(
+                value = maxResults.toFloat(),
+                onValueChange = { value ->
+                    viewModel.updateMaxResults(value.toInt())
+                },
+                valueRange = 1f..3f,
+                steps = 2,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
+
+            // SegmentationEnabled
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -328,6 +416,7 @@ fun CameraScreen(
                 )
             }
 
+            // ObjectDetectionEnabled
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -345,6 +434,27 @@ fun CameraScreen(
                 RadioButton(
                     selected = objectDetectionEnabled,
                     onClick = { viewModel.updateObjectDetectionEnabled(!objectDetectionEnabled) }
+                )
+            }
+
+            // VideoEnable
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Video Classification",
+                    modifier = Modifier
+                        .weight(1f),
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                RadioButton(
+                    selected = videoEnabled,
+                    onClick = { viewModel.updateVideoEnable(!videoEnabled) }
                 )
             }
 
@@ -368,6 +478,35 @@ fun RadioGroup(
     selectedOption: Int,
     options: List<Pair<String, Int>>,
     onOptionSelected: (Int) -> Unit
+) {
+    Column(
+        modifier = modifier,
+    ) {
+        options.forEach { (text, value) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onOptionSelected(value) }
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = value == selectedOption,
+                    onClick = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = text)
+            }
+        }
+    }
+}
+
+@Composable
+fun GroupRadio(
+    modifier: Modifier = Modifier,
+    selectedOption: String,
+    options: List<Pair<String, String>>,
+    onOptionSelected: (String) -> Unit
 ) {
     Column(
         modifier = modifier,

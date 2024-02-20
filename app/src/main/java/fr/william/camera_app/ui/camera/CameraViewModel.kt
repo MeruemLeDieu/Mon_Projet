@@ -1,29 +1,27 @@
 package fr.william.camera_app.ui.camera
 
-import android.util.Log
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.william.camera_app.data.datasource.labels.Label
-import fr.william.camera_app.data.datasource.labels.Position
 import fr.william.camera_app.data.repository.labels.LabelsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import org.tensorflow.lite.task.vision.classifier.ImageClassifier
 import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
-import java.time.Instant
 import javax.inject.Inject
 
+
+
+
 @HiltViewModel
-class CameraViewModel @Inject constructor(
-    private val labelsRepository: LabelsRepository
+class CameraViewModel @SuppressLint("StaticFieldLeak") // @SuppressLint("StaticFieldLeak") bug ?
+@Inject constructor(
+    private val labelsRepository: LabelsRepository,
+    @SuppressLint("StaticFieldLeak") private val context: Context // have to delete ?
 
 ) : ViewModel() {
     private companion object {
@@ -42,6 +40,11 @@ class CameraViewModel @Inject constructor(
         MutableStateFlow(CameraUiState.ObjectDetectionResult(mutableListOf(), 0, 500, 500))
     val objectDetection: StateFlow<CameraUiState.ObjectDetectionResult> =
         _objectDetection.asStateFlow()
+
+    private val _video =
+        MutableStateFlow(CameraUiState.VideoResult(mutableListOf(), 0, 500, 500))
+    val video: StateFlow<CameraUiState.VideoResult> =
+        _video.asStateFlow()
 
     fun updateSegmentationResult(
         segmentation: List<Segmentation>,
@@ -75,11 +78,55 @@ class CameraViewModel @Inject constructor(
         }
     }
 
-    private val _formInputState = MutableStateFlow(CameraUiState.FormInputState())
+    fun updateVideoResult(
+        classification: MutableList<ImageClassifier>?,
+        inferenceTime: Long,
+        imageHeight: Int,
+        imageWidth: Int
+    ) {
+        _video.update {
+            it.copy(
+                classification = classification,
+                inferenceTime = inferenceTime,
+                imageHeight = imageHeight,
+                imageWidth = imageWidth,
+            )
+        }
+    }
+
+    private val _formInputState = MutableStateFlow(CameraUiState.FormInputState(context))
     val formInputState: StateFlow<CameraUiState.FormInputState>
         get() = _formInputState.asStateFlow()
 
+    /*fun initialize(context: Context) {
+        _formInputState.value = CameraUiState.FormInputState(context)
+    }*/
+
     // Additional methods to update formInputState based on user input
+    /*fun updateContext(context: Context) {
+        _formInputState.value = _formInputState.value.copy(context = context)
+    }*/
+
+    fun updateModelFile(modelFile: String) {
+        _formInputState.value = _formInputState.value.copy(modelFile = modelFile)
+    }
+
+    /*fun updateLabelFile(labelFile: String) {
+        _formInputState.value = _formInputState.value.copy(labelFile = labelFile)
+    }*/
+
+    fun updateMaxResults(maxResults: Int) {
+        _formInputState.value = _formInputState.value.copy(maxResults = maxResults)
+    }
+
+    /*fun updateInterpreter(interpreter: Interpreter) {
+        _formInputState.value = _formInputState.value.copy(interpreter = interpreter)
+    }*/
+
+    /*fun updateLabels(labels: List<String>) {
+        _formInputState.value = _formInputState.value.copy(labels = labels)
+    }*/
+
     fun updateNumThreads(numThreads: Int) {
         _formInputState.value = _formInputState.value.copy(numThreads = numThreads)
     }
@@ -100,6 +147,11 @@ class CameraViewModel @Inject constructor(
     fun updateObjectDetectionEnabled(objectDetectionEnabled: Boolean) {
         _formInputState.value =
             _formInputState.value.copy(objectDetectionEnabled = objectDetectionEnabled)
+    }
+
+    fun updateVideoEnable(videoEnable: Boolean) {
+        _formInputState.value =
+            _formInputState.value.copy(videoEnabled = videoEnable)
     }
 
 }

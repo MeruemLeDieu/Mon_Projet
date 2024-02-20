@@ -1,49 +1,70 @@
 [versions]
 
 android-gradle-plugin = "8.1.1"
+daggerCompiler = "2.50"
+google-dagger = "2.50"
+daggerAndroid = "2.50"
+daggerAndroidSupport = "2.50"
+daggerAndroidProcessor = "2.50"
 gradleDownloadTask = "4.1.2"
 kotlin = "1.9.10"
 coroutine = "1.7.3"
-dagger-hilt = "2.47"
-dagger-hilt-navigation = "1.1.0-alpha01"
+dagger-hilt = "2.50"
+dagger-hilt-navigation = "1.2.0-alpha01"
 google-services = "4.4.0"
 crashlytics-plugin = "2.9.9"
 androidx-core = "1.12.0"
-androidx-lifecycle = "2.6.2"
+androidx-lifecycle = "2.7.0"
 androidx-splashscreen = "1.0.1"
-androidxTracing = "1.1.0"
+androidxTracing = "1.2.0"
 compose-compiler = "1.5.3"
-compose-ui-test = "1.5.3"
-compose-bom = "2023.10.00"
-coil = "2.4.0"
-navigationCompose = "2.7.5"
-robolectric = "4.9.2"
-room = "2.6.0-rc01"
-firebase-bom = "32.3.1"
+compose-ui-test = "1.6.1"
+compose-bom = "2023.10.01"
+coil = "2.5.0"
+navigationCompose = "2.7.7"
+robolectric = "4.11.1"
+room = "2.6.1"
+firebase-bom = "32.7.2"
 junit = "4.13.2"
 androidx-junit = "1.1.5"
 test-runner = "1.5.2"
-mockk-version="1.13.5"
+mockk-version= "1.13.9"
 google-play-services = "20.7.0"
-recyclerview = "1.3.1"
+recyclerview = "1.3.2"
 constraintlayout = "1.0.1"
 google-ksp = "1.9.10-1.0.13"
-tensorflow-lite = "0.4.0"
-tensorflow-lite-gpu = "2.9.0"
-androidx-camera = "1.3.0"
-material = "1.10.0"
+tensorflow-lite = "2.14.0" #"0.0.0-nightly-SNAPSHOT" #"0.4.0"
+tensorflow-lite-task-vision = "0.4.4"
+tensorflow-lite-gpu = "2.14.0"
+tensorflow-lite-gpu-delegate = "0.4.4"
+tensorflow-lite-support = "0.4.4"
+tensorflow-lite-select-tf-ops = "2.14.0"
+androidx-camera = "1.3.1"
+material = "1.11.0"
+asm-analysis = "9.6"
+support-annotations = "28.0.0"
+kapt = "4.1.0"
 
 
 [libraries]
+dagger = { module = "com.google.dagger:dagger", version.ref = "google-dagger" }
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "daggerCompiler" }
+dagger-android = { module = "com.google.dagger:dagger-android", version.ref = "daggerAndroid" }
+dagger-android-support = { module = "com.google.dagger:dagger-android-support", version.ref = "daggerAndroidSupport" }
+dagger-android-processor = { module = "com.google.dagger:dagger-android-processor", version.ref = "daggerAndroidProcessor" }
 gradle-download-task = { module = "de.undercouch:gradle-download-task", version.ref = "gradleDownloadTask" }
-tensorflow-lite = { module = "org.tensorflow:tensorflow-lite-task-vision", version.ref = "tensorflow-lite" }
-tensorflow-lite-gpu-delegate = { module = "org.tensorflow:tensorflow-lite-gpu-delegate-plugin", version.ref = "tensorflow-lite" }
+tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflow-lite" }
+tensorflow-lite-task-vision = { module = "org.tensorflow:tensorflow-lite-task-vision", version.ref = "tensorflow-lite-task-vision" }
+tensorflow-lite-gpu-delegate = { module = "org.tensorflow:tensorflow-lite-gpu-delegate-plugin", version.ref = "tensorflow-lite-gpu-delegate" }
 tensorflow-lite-gpu = { module = "org.tensorflow:tensorflow-lite-gpu", version.ref = "tensorflow-lite-gpu" }
+tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflow-lite-support" }
+tensorflow-lite-select-tf-ops = { module = "org.tensorflow:tensorflow-lite-select-tf-ops", version.ref = "tensorflow-lite-select-tf-ops"}
 
-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "androidx-camera" }
-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "androidx-camera" }
-camera-view = { module = "androidx.camera:camera-view", version.ref = "androidx-camera" }
-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "androidx-camera" }
+camera = { module = "androidx.camera:camera-core", version = "1.3.1" }
+camera2 = { module = "androidx.camera:camera-camera2", version = "1.3.1" }
+camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version = "1.3.1" }
+camera-view = { module = "androidx.camera:camera-view", version = "1.3.1" }
+camera-extensions = { module = "androidx.camera:camera-extensions", version = "1.3.1" }
 
 coroutine-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutine" }
 coroutine-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutine" }
@@ -55,23 +76,24 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 
 androidx-tracing-ktx = { group = "androidx.tracing", name = "tracing-ktx", version.ref = "androidxTracing" }
-compose-material = { module = "androidx.compose.material3:material3" }
-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
-compose-activity = { module = "androidx.activity:activity-compose" }
+compose-material = { module = "androidx.compose.material3:material3", version = "1.2.0" }
+compose-bom = { module = "androidx.compose:compose-bom", version = "2024.02.00" }
+compose-activity = { module = "androidx.activity:activity-compose", version = "1.8.2" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-compose-animation-graphics = { module = "androidx.compose.animation:animation-graphics" }
-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-animation-graphics = { module = "androidx.compose.animation:animation-graphics", version = "1.6.1" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version = "1.6.1" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version = "1.6.1" }
 compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose-ui-test" }
-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
-compose-coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version = "1.6.1" }
+compose-coil = { module = "io.coil-kt:coil-compose", version = "2.5.0" }
 compose-constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout" }
 
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger-hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger-hilt" }
-hilt-navigation = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "dagger-hilt-navigation" }
-hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger-hilt" }
+hilt-navigation = { module = "androidx.hilt:hilt-navigation-compose", version = "1.1.0" }
+hilt-testing = { module = "com.google.dagger:hilt-android-testing", version = "2.50" }
+
 
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
@@ -79,13 +101,13 @@ room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
-firebase-analytics = { module = "com.google.firebase:firebase-analytics-ktx" }
-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
-firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
-firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
-firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics", version = "21.5.1" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics", version = "18.6.2" }
+firebase-auth = { module = "com.google.firebase:firebase-auth", version = "22.3.1" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore", version = "24.10.2" }
+firebase-storage = { module = "com.google.firebase:firebase-storage", version = "20.3.0" }
 
-google-play-services = {module = "com.google.android.gms:play-services-auth", version.ref = "google-play-services"}
+google-play-services = {module = "com.google.android.gms:play-services-auth", version.ref = "google-play-services" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 
@@ -94,8 +116,13 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "test-ru
 
 mockk = { module = "io.mockk:mockk-android", version.ref = "mockk-version" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
-androidx-compose-materialWindow = { module = "androidx.compose.material3:material3-window-size-class" }
+androidx-compose-materialWindow = { module = "androidx.compose.material3:material3-window-size-class", version = "1.2.0" }
 google-android-material = { module = "com.google.android.material:material", version.ref = "material" }
+
+asm-analysis = { module = "org.ow2.asm:asm-analysis", version = "9.6" }
+androidx-monitor = { group = "androidx.test", name = "monitor", version = "1.6.1" }
+kapt = { module = "com.android.databinding:compiler", version = "kapt" }
+#support-annotations = { module = 'com.android.support:support-annotations', version.ref = "support-annotations"}
 
 [bundles]
 coroutine =  ["coroutine-android", "coroutine-play-services"]
@@ -104,10 +131,13 @@ compose = ["compose-material", "compose-ui-tooling-preview", "compose-activity",
 compose-debug = ["compose-ui-tooling", "compose-ui-test-manifest"]
 compose-test = ["compose-ui-test"]
 hilt = ["hilt-android", "hilt-compiler", "hilt-navigation"]
-firebase = ["firebase-analytics", "firebase-crashlytics", "firebase-auth", "firebase-firestore", "firebase-storage", "google-play-services"]
+firebase = ["firebase-bom", "firebase-analytics", "firebase-crashlytics", "firebase-auth", "firebase-firestore", "firebase-storage", "google-play-services"]
 room = ["room-runtime", "room-ktx"]
-tensorflow = ["tensorflow-lite", "tensorflow-lite-gpu-delegate", "tensorflow-lite-gpu"]
-camera = ["camera2", "camera-lifecycle", "camera-view", "camera-extensions"]
+tensorflow = ["tensorflow-lite", "tensorflow-lite-task-vision", "tensorflow-lite-gpu-delegate", "tensorflow-lite-gpu", "tensorflow-lite-support", "tensorflow-lite-select-tf-ops"]
+camera = ["camera", "camera2", "camera-lifecycle", "camera-view", "camera-extensions"]
+asmAnalysis = ["asm-analysis"]
+#kapt = ["kapt"]
+#supportAnnotations = ["support-annotations"]
 
 [plugins]
 android-application = { id = 'com.android.application', version.ref = "android-gradle-plugin" }

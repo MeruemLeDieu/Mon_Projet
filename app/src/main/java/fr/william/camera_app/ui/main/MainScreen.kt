@@ -23,7 +23,7 @@ fun MainScreen(
 
     NavHost(
         navController = navController,
-        startDestination = "connexion"
+        startDestination = "camera"
     ) {
         composable("camera") {
             CameraScreen(

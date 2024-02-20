@@ -1,6 +1,17 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+
+    //ajout pour videoclassifier
+    repositories {
+        google()
+        mavenCentral()
+        maven { // repo for TFLite snapshot
+            name = "ossrh-snapshot"
+            url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+        }
+    }
+
     dependencies {
         classpath(libs.gradle.download.task)
     }
