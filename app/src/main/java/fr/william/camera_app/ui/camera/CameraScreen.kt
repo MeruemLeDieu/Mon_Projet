@@ -2,7 +2,6 @@ package fr.william.camera_app.ui.camera
 
 //import com.google.firebase.Timestamp
 //import fr.william.camera_app.data.datasource.labels.Position
-import android.util.Log
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.compose.animation.AnimatedVisibility
@@ -62,7 +61,6 @@ import fr.william.camera_app.data.VideoClassifier
 import fr.william.camera_app.ui.analyser.ImageAnalyzer
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-
 
 
 @Composable
@@ -146,7 +144,7 @@ fun CameraScreen(
             isSegmenterEnabled = segmentationEnabled,
             isObjectDetectionEnabled = objectDetectionEnabled,
             isVideoEnabled = videoEnabled,
-        ) { segmentationResult, objectDetectionResult ->
+        ) { segmentationResult, objectDetectionResult, videoClassifierResult ->
             MainScope().launch {
                 segmentationResult.apply {
                     viewModel.updateSegmentationResult(
@@ -154,10 +152,6 @@ fun CameraScreen(
                         inferenceTime,
                         imageWidth,
                         imageHeight,
-                    )
-                    Log.d(
-                        "segmentationResult",
-                        "imageWidth: $imageWidth, imageHeight: $imageHeight"
                     )
                 }
                 objectDetectionResult.apply {
@@ -167,21 +161,13 @@ fun CameraScreen(
                         imageWidth,
                         imageHeight,
                     )
-                    Log.d(
-                        "objectDetectionResult",
-                        "imageWidth: $imageWidth, imageHeight: $imageHeight"
-                    )
                 }
                 videoClassifierResult.apply {
                     viewModel.updateVideoResult(
-                        classification,
+                        categories,
                         inferenceTime,
                         imageWidth,
                         imageHeight,
-                    )
-                    Log.d(
-                        "videoClassifierResult",
-                        "imageWidth: $imageWidth, imageHeight: $imageHeight"
                     )
                 }
             }
@@ -284,7 +270,6 @@ fun CameraScreen(
                 )
             }
         }
-
     }
 
     AnimatedVisibility(

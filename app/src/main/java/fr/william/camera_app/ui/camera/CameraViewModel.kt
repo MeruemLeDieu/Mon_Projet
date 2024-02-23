@@ -1,6 +1,5 @@
 package fr.william.camera_app.ui.camera
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,12 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.tensorflow.lite.task.vision.classifier.ImageClassifier
+import org.tensorflow.lite.support.label.Category
 import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
 import javax.inject.Inject
-
-
 
 
 @HiltViewModel
@@ -79,7 +76,7 @@ class CameraViewModel @Inject constructor(
     }
 
     fun updateVideoResult(
-        classification: MutableList<ImageClassifier>?,
+        classification: MutableList<Category>?,
         inferenceTime: Long,
         imageHeight: Int,
         imageWidth: Int

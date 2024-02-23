@@ -1,24 +1,31 @@
 package fr.william.camera_app.domain
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Size
+import fr.william.camera_app.data.VideoClassifier
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.label.Category
-import org.tensorflow.lite.task.vision.classifier.ImageClassifier
 import java.nio.ByteBuffer
 
 data class VideoClassifierResult(
-    val videoResults: MutableList<ImageClassifier>?,
+    val categories: MutableList<Category>?,
     val inferenceTime: Long,
     val imageHeight: Int,
     val imageWidth: Int
 )
 interface VideoClassifierHelper {
+
+    fun createFromFileAndLabelsAndOptions(
+        context: Context,
+        options: VideoClassifier.VideoClassifierOptions
+    ): VideoClassifier
+
     fun initializeInput(): HashMap<String, Any>
 
     fun initializeOutput(): HashMap<String, Any>
 
-    fun classify(inputBitmap: Bitmap): List<Category>
+    fun classify(inputBitmap: Bitmap): VideoClassifierResult
 
     fun getInputSize(): Size
 

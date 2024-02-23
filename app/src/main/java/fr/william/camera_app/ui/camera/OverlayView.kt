@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
-import org.tensorflow.lite.task.vision.classifier.ImageClassifier
+import org.tensorflow.lite.support.label.Category
 import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
 import kotlin.math.min
@@ -47,7 +47,7 @@ data class ColorLabel(
 fun OverlayView(
     segmentResult: List<Segmentation>?,
     objectDetection: List<Detection>?,
-    videoResult: List<ImageClassifier>?,
+    videoResult: List<Category>?,
     imageHeight: Int,
     imageWidth: Int,
     segmentationEnabled: Boolean,
@@ -108,6 +108,15 @@ fun OverlayView(
 
             callback(colorLabels.filter { it.isExist })
         }
+
+
+    }
+
+    LaunchedEffect(videoResult) {
+        videoResult?.forEach { result ->
+            Log.d("OverlayView", "Video Result: $result")
+        }
+
     }
 
     Canvas(
@@ -180,7 +189,42 @@ fun OverlayView(
                     }
                 }
 
-Log.d("OverlayView", """
+                if(videoEnabled){
+                    videoResult?.forEach{
+                        val drawableText = "${it.label} ${String.format("%.2f", it.score)}"
+
+                        // Draw rect behind display text
+                        textBackgroundPaint.getTextBounds(drawableText, 0, drawableText.length, bounds)
+
+                        val textWidth = bounds.width()
+                        val textHeight = bounds.height()
+
+                        drawRect(
+                            color = textBackgroundPaint.color.asComposeColor(),
+                            topLeft = Offset(0f, 0f),
+                            size = Size(textWidth + 24f,  textHeight + 8f), //size = Size(left + textWidth + 8, (textHeight + 8).toFloat()), //rectAndTextTop + textHeight + 8),
+                            alpha = 0.5f,
+                            style = if (textBackgroundPaint.style == Paint.Style.FILL_AND_STROKE) Stroke(width = textBackgroundPaint.strokeWidth) else
+                                Fill
+                        )
+
+                        // Draw text for detected object
+                        drawText(
+                            textMeasurer = textMeasure,
+                            text = drawableText,
+                            style = TextStyle(
+                                color = textPaint.color.asComposeColor()
+                            ),
+                            topLeft = Offset(0f, 0f + bounds.height())//rectAndTextTop + bounds.height())
+                        )
+                    }
+                }
+
+
+
+
+
+                Log.d("OverlayView", """
     |Image Scaling and Analysis:
     |  Scale Factor: $scaleFactor
     |  Scaled Dimensions: ($scaleWidth x $scaleHeight)
@@ -202,4 +246,11 @@ Log.d("OverlayView", """
         }
     }
 
+}
+
+
+class Test{
+    fun main(){
+
+    }
 }

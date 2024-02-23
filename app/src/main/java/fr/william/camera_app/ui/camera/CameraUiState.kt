@@ -5,7 +5,7 @@ import fr.william.camera_app.data.TfImageSegmentationHelper
 import fr.william.camera_app.data.TfObjectDetectionHelper
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
-import org.tensorflow.lite.task.vision.classifier.ImageClassifier
+import org.tensorflow.lite.support.label.Category
 import org.tensorflow.lite.task.vision.detector.Detection
 import org.tensorflow.lite.task.vision.segmenter.Segmentation
 import java.time.Instant
@@ -26,7 +26,7 @@ sealed interface CameraUiState {
     ) : CameraUiState
 
     data class VideoResult(
-        val classification: MutableList<ImageClassifier>?,
+        val classification: MutableList<Category>?,
         val inferenceTime: Long,
         val imageHeight: Int,
         val imageWidth: Int

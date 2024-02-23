@@ -3,8 +3,10 @@ package fr.william.camera_app.data
 import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
+import android.provider.MediaStore.Video
 import android.util.Size
 import fr.william.camera_app.domain.VideoClassifierHelper
+import fr.william.camera_app.domain.VideoClassifierResult
 import fr.william.camera_app.ui.utils.CalculateUtils
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
@@ -61,28 +63,7 @@ class VideoClassifier constructor(
         const val MODEL_FPS_ERROR_RANGE = 0.1 // Acceptable error range in fps.
         const val MAX_CAPTURE_FPS = 20
 
-        fun createFromFileAndLabelsAndOptions(
-            context: Context,
-            modelFile: String,
-            labelFile: String,
-            options: VideoClassifierOptions
-        ): VideoClassifier {
-            // Create a TFLite interpreter from the TFLite model file.
-            val interpreterOptions = Interpreter.Options().apply {
-                numThreads = options.numThreads
-            }
-            val interpreter =
-                Interpreter(FileUtil.loadMappedFile(context, modelFile))
 
-            // Load the label file.
-            val labels = FileUtil.loadLabels(context, labelFile)
-
-            // Save the max result option.
-            val maxResults = if (options.maxResults > 0 && options.maxResults <= labels.size)
-                options.maxResults else null
-
-            return VideoClassifier(interpreter, labels, maxResults, options.numThreads, context, modelFile, labelFile)
-        }
     }
 
     init {
@@ -92,6 +73,27 @@ class VideoClassifier constructor(
                         "(${labels.size} != $outputCategoryCount"
             )
         inputState = initializeInput()
+    }
+
+    override fun createFromFileAndLabelsAndOptions(
+        context: Context,
+        options: VideoClassifierOptions
+    ): VideoClassifier {
+        // Create a TFLite interpreter from the TFLite model file.
+        val interpreterOptions = Interpreter.Options().apply {
+            numThreads = options.numThreads
+        }
+        val interpreter =
+            Interpreter(FileUtil.loadMappedFile(context, modelFile))
+
+        // Load the label file.
+        val labels = FileUtil.loadLabels(context, labelFile)
+
+        // Save the max result option.
+        val maxResults = if (options.maxResults > 0 && options.maxResults <= labels.size)
+            options.maxResults else null
+
+        return VideoClassifier(interpreter, labels, maxResults, options.numThreads, context, modelFile, labelFile)
     }
 
     /**
@@ -133,7 +135,7 @@ class VideoClassifier constructor(
     /**
      * Run classify and return a list include action and score.
      */
-    override fun classify(inputBitmap: Bitmap): List<Category> {
+    override fun classify(inputBitmap: Bitmap): VideoClassifierResult {
         // As this model is stateful, ensure there's only one inference going on at once.
         synchronized(lock) {
             // Prepare inputs.
@@ -160,7 +162,7 @@ class VideoClassifier constructor(
             maxResults?.let {
                 categories = categories.subList(0, max(maxResults, categories.size))
             }
-            return categories
+            return VideoClassifierResult(categories, 0, inputBitmap.height, inputBitmap.width)
         }
     }
 
