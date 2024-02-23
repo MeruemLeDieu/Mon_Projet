@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "597292128189",
+    "project_id": "camera-bc911",
+    "storage_bucket": "camera-bc911.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:597292128189:android:f757e2d35288987af1a4d4",
+        "android_client_info": {
+          "package_name": "fr.william.camera_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9uP96ewSQHul0m9uhBl6y4btQ-IJLFgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
