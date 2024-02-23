@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.william.camera_app.data.repository.labels.LabelsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,10 +19,10 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class CameraViewModel @SuppressLint("StaticFieldLeak") // @SuppressLint("StaticFieldLeak") bug ?
-@Inject constructor(
+class CameraViewModel @Inject constructor(
     private val labelsRepository: LabelsRepository,
-    @SuppressLint("StaticFieldLeak") private val context: Context // have to delete ?
+    //@SuppressLint("StaticFieldLeak") private val context: Context // have to delete ?
+    @ApplicationContext private val context: Context
 
 ) : ViewModel() {
     private companion object {

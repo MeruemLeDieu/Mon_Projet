@@ -5,10 +5,4 @@ import dagger.hilt.android.HiltAndroidApp
 
 
 @HiltAndroidApp
-class CameraAppApplication : Application(){
-    /*val appComponent: AppComponent by lazy {
-        DaggerAppComponent.builder()
-            .contextModule(ContextModule(this))
-            .build()
-    }*/
-}
+class CameraAppApplication : Application()
