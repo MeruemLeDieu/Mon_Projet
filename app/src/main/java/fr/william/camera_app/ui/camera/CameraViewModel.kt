@@ -21,7 +21,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CameraViewModel @Inject constructor(
     private val labelsRepository: LabelsRepository,
-    //@SuppressLint("StaticFieldLeak") private val context: Context // have to delete ?
     @ApplicationContext private val context: Context
 
 ) : ViewModel() {

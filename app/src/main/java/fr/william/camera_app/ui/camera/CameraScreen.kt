@@ -25,7 +25,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -303,160 +305,166 @@ fun CameraScreen(
             onDismissRequest = { isSettingsExpanded = false },
         ) {
 
-            // NumThreads
-            Text(
-                text = "Number of Threads: $numThreads",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Slider(
-                value = numThreads.toFloat(),
-                onValueChange = { value ->
-                    viewModel.updateNumThreads(value.toInt())
-                },
-                valueRange = 1f..8f,
-                steps = 7,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
+          Column(
+              modifier = Modifier
+                  .fillMaxWidth()
+                  .verticalScroll(rememberScrollState()),
+          ) {
+              // NumThreads
+              Text(
+                  text = "Number of Threads: $numThreads",
+                  modifier = Modifier.padding(horizontal = 16.dp),
+                  style = MaterialTheme.typography.titleLarge
+              )
+              Slider(
+                  value = numThreads.toFloat(),
+                  onValueChange = { value ->
+                      viewModel.updateNumThreads(value.toInt())
+                  },
+                  valueRange = 1f..8f,
+                  steps = 7,
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .padding(16.dp)
+              )
 
-            // CurrentDelegate
-            Text(
-                text = "Image Segmentation Model: $currentDelegate",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
-            RadioGroup(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                selectedOption = currentDelegate,
-                options = listOf(
-                    "CPU" to TfImageSegmentationHelper.DELEGATE_CPU,
-                    "GPU" to TfImageSegmentationHelper.DELEGATE_GPU,
-                    "NNAPI" to TfImageSegmentationHelper.DELEGATE_NNAPI
-                ),
-                onOptionSelected = { delegate ->
-                    viewModel.updateCurrentDelegate(delegate)
-                }
-            )
+              // CurrentDelegate
+              Text(
+                  text = "Image Segmentation Model: $currentDelegate",
+                  modifier = Modifier.padding(horizontal = 16.dp),
+                  style = MaterialTheme.typography.titleLarge
+              )
+              RadioGroup(
+                  modifier = Modifier.padding(horizontal = 16.dp),
+                  selectedOption = currentDelegate,
+                  options = listOf(
+                      "CPU" to TfImageSegmentationHelper.DELEGATE_CPU,
+                      "GPU" to TfImageSegmentationHelper.DELEGATE_GPU,
+                      "NNAPI" to TfImageSegmentationHelper.DELEGATE_NNAPI
+                  ),
+                  onOptionSelected = { delegate ->
+                      viewModel.updateCurrentDelegate(delegate)
+                  }
+              )
 
-            // CurrentModel
-            Text(
-                text = "Object Detection Model: $currentModel",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
-            RadioGroup(
-                modifier = Modifier.padding(16.dp),
-                selectedOption = currentModel,
-                options = listOf(
-                    "EfficientDet Lite 0" to TfObjectDetectionHelper.MODEL_EFFICIENTDETV0,
-                    "EfficientDet Lite 1" to TfObjectDetectionHelper.MODEL_EFFICIENTDETV1,
-                    "EfficientDet Lite 2" to TfObjectDetectionHelper.MODEL_EFFICIENTDETV2,
-                ),
-                onOptionSelected = { model ->
-                    viewModel.updateCurrentModel(model)
-                }
-            )
+              // CurrentModel
+              Text(
+                  text = "Object Detection Model: $currentModel",
+                  modifier = Modifier.padding(horizontal = 16.dp),
+                  style = MaterialTheme.typography.titleLarge
+              )
+              RadioGroup(
+                  modifier = Modifier.padding(16.dp),
+                  selectedOption = currentModel,
+                  options = listOf(
+                      "EfficientDet Lite 0" to TfObjectDetectionHelper.MODEL_EFFICIENTDETV0,
+                      "EfficientDet Lite 1" to TfObjectDetectionHelper.MODEL_EFFICIENTDETV1,
+                      "EfficientDet Lite 2" to TfObjectDetectionHelper.MODEL_EFFICIENTDETV2,
+                  ),
+                  onOptionSelected = { model ->
+                      viewModel.updateCurrentModel(model)
+                  }
+              )
 
-            // ModelFile
-            Text(
-                text = "Video Classification Model: $modelFile",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
-            GroupRadio(
-                modifier = Modifier.padding(16.dp),
-                selectedOption = modelFile,
-                options = listOf(
-                    "movinet_a0_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A0_FILE,
-                    "movinet_a1_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A1_FILE,
-                    "movinet_a2_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A2_FILE,
-                ),
-                onOptionSelected = { model2 ->
-                    viewModel.updateModelFile(model2)
-                }
-            )
+              // ModelFile
+              Text(
+                  text = "Video Classification Model: $modelFile",
+                  modifier = Modifier.padding(horizontal = 16.dp),
+                  style = MaterialTheme.typography.titleLarge
+              )
+              GroupRadio(
+                  modifier = Modifier.padding(16.dp),
+                  selectedOption = modelFile,
+                  options = listOf(
+                      "movinet_a0_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A0_FILE,
+                      "movinet_a1_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A1_FILE,
+                      "movinet_a2_stream_int8.tflite" to VideoClassifier.MODEL_MOVINET_A2_FILE,
+                  ),
+                  onOptionSelected = { model2 ->
+                      viewModel.updateModelFile(model2)
+                  }
+              )
 
-            // MaxResults
-            Text(
-                text = "Video Classification MaxResults: $maxResults",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Slider(
-                value = maxResults.toFloat(),
-                onValueChange = { value ->
-                    viewModel.updateMaxResults(value.toInt())
-                },
-                valueRange = 1f..3f,
-                steps = 2,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            )
+              // MaxResults
+              Text(
+                  text = "Video Classification MaxResults: $maxResults",
+                  modifier = Modifier.padding(horizontal = 16.dp),
+                  style = MaterialTheme.typography.titleLarge
+              )
+              Slider(
+                  value = maxResults.toFloat(),
+                  onValueChange = { value ->
+                      viewModel.updateMaxResults(value.toInt())
+                  },
+                  valueRange = 1f..3f,
+                  steps = 2,
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .padding(16.dp)
+              )
 
-            // SegmentationEnabled
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Segmentation",
-                    modifier = Modifier
-                        .weight(1f),
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                RadioButton(
-                    selected = segmentationEnabled,
-                    onClick = { viewModel.updateSegmentationEnabled(!segmentationEnabled) }
-                )
-            }
+              // SegmentationEnabled
+              Row(
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .padding(horizontal = 16.dp),
+                  verticalAlignment = Alignment.CenterVertically,
+              ) {
+                  Text(
+                      text = "Segmentation",
+                      modifier = Modifier
+                          .weight(1f),
+                      fontSize = 16.sp,
+                      color = MaterialTheme.colorScheme.onBackground
+                  )
+                  RadioButton(
+                      selected = segmentationEnabled,
+                      onClick = { viewModel.updateSegmentationEnabled(!segmentationEnabled) }
+                  )
+              }
 
-            // ObjectDetectionEnabled
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Object Detection",
-                    modifier = Modifier
-                        .weight(1f),
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                RadioButton(
-                    selected = objectDetectionEnabled,
-                    onClick = { viewModel.updateObjectDetectionEnabled(!objectDetectionEnabled) }
-                )
-            }
+              // ObjectDetectionEnabled
+              Row(
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .padding(horizontal = 16.dp)
+                      .padding(bottom = 16.dp),
+                  verticalAlignment = Alignment.CenterVertically,
+              ) {
+                  Text(
+                      text = "Object Detection",
+                      modifier = Modifier
+                          .weight(1f),
+                      fontSize = 16.sp,
+                      color = MaterialTheme.colorScheme.onBackground
+                  )
+                  RadioButton(
+                      selected = objectDetectionEnabled,
+                      onClick = { viewModel.updateObjectDetectionEnabled(!objectDetectionEnabled) }
+                  )
+              }
 
-            // VideoEnable
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Video Classification",
-                    modifier = Modifier
-                        .weight(1f),
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                RadioButton(
-                    selected = videoEnabled,
-                    onClick = { viewModel.updateVideoEnable(!videoEnabled) }
-                )
-            }
+              // VideoEnable
+              Row(
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .padding(horizontal = 16.dp)
+                      .padding(bottom = 16.dp),
+                  verticalAlignment = Alignment.CenterVertically,
+              ) {
+                  Text(
+                      text = "Video Classification",
+                      modifier = Modifier
+                          .weight(1f),
+                      fontSize = 16.sp,
+                      color = MaterialTheme.colorScheme.onBackground
+                  )
+                  RadioButton(
+                      selected = videoEnabled,
+                      onClick = { viewModel.updateVideoEnable(!videoEnabled) }
+                  )
+              }
+          }
 
         }
     }
