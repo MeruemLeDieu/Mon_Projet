@@ -18,7 +18,7 @@ class ImageAnalyzer(
     private val isSegmenterEnabled: Boolean,
     private val isObjectDetectionEnabled: Boolean,
     private val isVideoEnabled: Boolean,
-    private val onResult: (SegmentationResult, ObjectDetectionResult, VideoClassifierResult ) -> Unit //, VideoClassifierResult)
+    private val onResult: (SegmentationResult, ObjectDetectionResult, VideoClassifierResult ) -> Unit
 ) : ImageAnalysis.Analyzer {
     override fun analyze(image: ImageProxy) {
         val rotationDegrees = image.imageInfo.rotationDegrees
